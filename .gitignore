@@ -1,0 +1,11 @@
+#User Specific
+*.userprefs
+*.usertasks
+
+#Mono Project Files
+*.pidb
+*.resources
+test-results/
+
+#NuGet packages
+packages/
