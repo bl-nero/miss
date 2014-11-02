@@ -31,10 +31,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="Nancy">
+      <HintPath>..\packages\Nancy.0.23.2\lib\net40\Nancy.dll</HintPath>
+    </Reference>
+    <Reference Include="Nancy.Hosting.Self">
+      <HintPath>..\packages\Nancy.Hosting.Self.0.23.2\lib\net40\Nancy.Hosting.Self.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
