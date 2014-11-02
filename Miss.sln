@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Miss", "Miss\Miss.csproj", "{9B808F9F-F171-464F-9349-3192F1317364}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Miss.Tests", "Miss.Tests\Miss.Tests.csproj", "{D277A1C6-DED3-4D39-ACFE-D130361BE8F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{9B808F9F-F171-464F-9349-3192F1317364}.Debug|x86.Build.0 = Debug|x86
 		{9B808F9F-F171-464F-9349-3192F1317364}.Release|x86.ActiveCfg = Release|x86
 		{9B808F9F-F171-464F-9349-3192F1317364}.Release|x86.Build.0 = Release|x86
+		{D277A1C6-DED3-4D39-ACFE-D130361BE8F1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D277A1C6-DED3-4D39-ACFE-D130361BE8F1}.Debug|x86.Build.0 = Debug|Any CPU
+		{D277A1C6-DED3-4D39-ACFE-D130361BE8F1}.Release|x86.ActiveCfg = Release|Any CPU
+		{D277A1C6-DED3-4D39-ACFE-D130361BE8F1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Miss\Miss.csproj
