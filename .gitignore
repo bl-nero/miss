@@ -9,3 +9,7 @@ test-results/
 
 #NuGet packages
 packages/
+
+#Build results
+[Bb]in/
+[Oo]bj/
