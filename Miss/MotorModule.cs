@@ -13,6 +13,7 @@ namespace Miss {
 
     public MotorModule() : base("/v1/motor") {
       Get["/{portSpec}/switchOn"] = parameters => {
+        Console.WriteLine("Switching on motor " + parameters.portSpec);
         return "Switching on motor " + parameters.portSpec;
       };
     }

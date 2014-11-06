@@ -1,7 +1,7 @@
-﻿using Nancy;
-using Nancy.Testing;
+﻿using System;
 using NUnit.Framework;
-using System;
+using Nancy;
+using Nancy.Testing;
 
 namespace Miss.Tests {
 
