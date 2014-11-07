@@ -38,6 +38,12 @@
       <HintPath>..\packages\Nancy.Hosting.Self.0.23.2\lib\net40\Nancy.Hosting.Self.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MonoBrick">
+      <HintPath>..\..\experiments\mono\Hello\MonoBrickTest\MonoBrick.dll</HintPath>
+    </Reference>
+    <Reference Include="LibUsbDotNet">
+      <HintPath>..\..\experiments\mono\Hello\MonoBrickTest\LibUsbDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -47,5 +53,20 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="hidapi.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="libhidapi.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="libusb-1.0.0.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="libusb-1.0.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MonoBrick.dll" />
+    <None Include="MonoBrick.xml" />
+    <None Include="LibUsbDotNet.dll" />
   </ItemGroup>
 </Project>
