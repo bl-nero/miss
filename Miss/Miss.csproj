@@ -65,8 +65,8 @@
     <None Include="libusb-1.0.dylib">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MonoBrick.dll" />
     <None Include="MonoBrick.xml" />
     <None Include="LibUsbDotNet.dll" />
+    <None Include="MonoBrick.dll" />
   </ItemGroup>
 </Project>

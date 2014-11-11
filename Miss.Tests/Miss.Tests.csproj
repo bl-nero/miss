@@ -44,6 +44,9 @@
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
     </Reference>
+    <Reference Include="MonoBrick">
+      <HintPath>..\..\experiments\mono\Hello\MonoBrickTest\MonoBrick.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MotorModuleTest.cs" />
