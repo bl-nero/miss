@@ -34,7 +34,7 @@ namespace Miss
         public MotorModule(IDictionary<char, MotorWrapper> motors)
             : base("/v1/motor")
         {
-            Get["/{portSpec}/switchOn"] = parameters =>
+            Get[@"/(?<portSpec>^[abcd]$)/switchOn"] = parameters =>
             {
                 sbyte speed = Request.Query.speed;
                 string portSpec = parameters.portSpec;
