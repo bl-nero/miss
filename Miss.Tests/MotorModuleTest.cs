@@ -50,6 +50,17 @@ namespace Miss.Tests
         }
 
         [Test]
+        public void SwitchOff()
+        {
+            motorMocks['a'].Setup(motor => motor.Off()).Verifiable();
+            motorMocks['b'].Setup(motor => motor.Off()).Verifiable();
+            BrowserResponse responseA = browser.Get("/v1/motor/a/switchOff");
+            BrowserResponse responseB = browser.Get("/v1/motor/b/switchOff");
+            Assert.That(responseA.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(responseB.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
         public void IllegalPortNames()
         {
             Action<BrowserContext> withQuery = with => with.Query("speed", "50");

@@ -19,7 +19,12 @@ namespace Miss
 
         public virtual void On(sbyte speed)
         {
-            //motor.On(speed);
+            motor.On(speed);
+        }
+
+        public virtual void Off()
+        {
+            motor.Off();
         }
     }
 
@@ -41,6 +46,14 @@ namespace Miss
                 motors[portSpec[0]].On(speed);
                 Console.WriteLine(
                     "Switching on motor " + parameters.portSpec + " to speed " + speed);
+                return HttpStatusCode.OK;
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/switchOff"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                    motors[portSpec[0]].Off();
+                Console.WriteLine("Switching off motor " + parameters.portSpec);
                 return HttpStatusCode.OK;
             };
         }
