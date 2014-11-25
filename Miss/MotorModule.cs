@@ -5,10 +5,17 @@ using Nancy;
 
 namespace Miss
 {
+    public interface IMotor
+    {
+        void On(sbyte speed);
+
+        void Off();
+    }
+
     /// <summary>
-    /// A simple wrapper for MonoBrick motor object, for easier mocking.
+    /// An implementation of IMotor that is a wrapper over a MonoBrick motor.
     /// </summary>
-    public class MotorWrapper
+    public class MotorWrapper: IMotor
     {
         private Motor motor;
 
@@ -17,14 +24,28 @@ namespace Miss
             this.motor = motor;
         }
 
-        public virtual void On(sbyte speed)
+        public void On(sbyte speed)
         {
             motor.On(speed);
         }
 
-        public virtual void Off()
+        public void Off()
         {
             motor.Off();
+        }
+    }
+
+    /// <summary>
+    /// An IMotor implementation that is just a dummy for testing purposes.
+    /// </summary>
+    public class DummyMotorWrapper: IMotor
+    {
+        public void On(sbyte speed)
+        {
+        }
+
+        public void Off()
+        {
         }
     }
 
@@ -36,24 +57,24 @@ namespace Miss
     /// </summary>
     public class MotorModule: NancyModule
     {
-        public MotorModule(IDictionary<char, MotorWrapper> motors)
+        public MotorModule(IDictionary<char, IMotor> motors)
             : base("/v1/motor")
         {
             Get[@"/(?<portSpec>^[abcd]$)/switchOn"] = parameters =>
             {
                 sbyte speed = Request.Query.speed;
                 string portSpec = parameters.portSpec;
+                Console.WriteLine(String.Format(
+                        "Switching on motor {0} to speed {1}", parameters.portSpec, speed));
                 motors[portSpec[0]].On(speed);
-                Console.WriteLine(
-                    "Switching on motor " + parameters.portSpec + " to speed " + speed);
                 return HttpStatusCode.OK;
             };
 
             Get[@"/(?<portSpec>^[abcd]$)/switchOff"] = parameters =>
             {
                 string portSpec = parameters.portSpec;
-                    motors[portSpec[0]].Off();
-                Console.WriteLine("Switching off motor " + parameters.portSpec);
+                Console.WriteLine(String.Format("Switching off motor {0}", portSpec));
+                motors[portSpec[0]].Off();
                 return HttpStatusCode.OK;
             };
         }

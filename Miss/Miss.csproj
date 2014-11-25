@@ -50,6 +50,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MotorModule.cs" />
     <Compile Include="Mono.Options\Options.cs" />
+    <Compile Include="Bootstrappers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

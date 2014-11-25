@@ -13,7 +13,7 @@ namespace Miss.Tests
     public class MotorModuleTest
     {
         MockRepository mocks;
-        Dictionary<char, Mock<MotorWrapper>> motorMocks;
+        Dictionary<char, Mock<IMotor>> motorMocks;
         Browser browser;
 
         [SetUp]
@@ -21,7 +21,7 @@ namespace Miss.Tests
         {
             mocks = new MockRepository(MockBehavior.Loose);
             motorMocks = new[]{ 'a', 'b', 'c', 'd' }.ToDictionary(
-                name => name, name => mocks.Create<MotorWrapper>(null));
+                name => name, name => mocks.Create<IMotor>());
             var motors = motorMocks.ToDictionary(item => item.Key, item => item.Value.Object);
             browser = new Browser(with =>
                 {
