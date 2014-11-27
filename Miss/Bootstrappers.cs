@@ -42,33 +42,34 @@ namespace Miss
     /// </summary>
     class DefaultMissBootstrapper: MissBootstrapperBase
     {
-        private string brickConnection;
+        private string connectionString;
 
-        public DefaultMissBootstrapper(string brickConnection)
+        public DefaultMissBootstrapper(string connectionString)
         {
-            this.brickConnection = brickConnection;
+            this.connectionString = connectionString;
         }
 
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
             base.ConfigureApplicationContainer(container);
             Console.Error.WriteLine(
-                String.Format("Connecting to the brick at {0}...", brickConnection));
-            var brick = new Brick<Sensor, Sensor, Sensor, Sensor>(brickConnection);
-            brick.Connection.Open();
+                String.Format("Connecting to the brick at {0}...", connectionString));
+            var brick = new Brick<Sensor, Sensor, Sensor, Sensor>(connectionString);
+            var connection = brick.Connection;
+            connection.Open();
             // Register a connection guard that will close the connection once the application
             // container is disposed. This is probably an overkill, but I wouldn't lay my head to
             // sleep peacefully otherwise.
-            container.Register(new ConnectionGuard(brick.Connection));
+            container.Register(new ConnectionGuard(connection));
             Console.Error.WriteLine("Connection established");
             container.Register(
                 typeof(IDictionary<char, IMotor>),
                 new Dictionary<char, IMotor>()
                 {
-                    { 'a', new MotorWrapper(brick.MotorA) },
-                    { 'b', new MotorWrapper(brick.MotorB) },
-                    { 'c', new MotorWrapper(brick.MotorC) },
-                    { 'd', new MotorWrapper(brick.MotorD) },
+                    { 'a', new MotorWrapper(brick.MotorA, connection, OutputBitfield.OutA) },
+                    { 'b', new MotorWrapper(brick.MotorB, connection, OutputBitfield.OutB) },
+                    { 'c', new MotorWrapper(brick.MotorC, connection, OutputBitfield.OutC) },
+                    { 'd', new MotorWrapper(brick.MotorD, connection, OutputBitfield.OutD) },
                 });
         }
     }

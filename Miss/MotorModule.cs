@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MonoBrick;
 using MonoBrick.EV3;
 using Nancy;
 
@@ -10,6 +11,8 @@ namespace Miss
         void On(sbyte speed);
 
         void Off();
+
+        void Wait();
     }
 
     /// <summary>
@@ -18,10 +21,15 @@ namespace Miss
     public class MotorWrapper: IMotor
     {
         private Motor motor;
+        private Connection<Command, Reply> connection;
+        private OutputBitfield outputBitfield;
 
-        public MotorWrapper(Motor motor)
+        public MotorWrapper(
+            Motor motor, Connection<Command, Reply> connection, OutputBitfield outputBitfield)
         {
             this.motor = motor;
+            this.connection = connection;
+            this.outputBitfield = outputBitfield;
         }
 
         public void On(sbyte speed)
@@ -32,6 +40,31 @@ namespace Miss
         public void Off()
         {
             motor.Off();
+        }
+
+        public void Wait()
+        {
+            // Note: Unfortunately, the motor's Output property is not public, and
+            // Output.WaitForReady isn't exported from the Motor class itself, so we need to make
+            // our own one just to call this one method.
+            // TODO(bl-nero): This hasn't been properly tested yet!
+            Output output = new MissMotorOutput(outputBitfield, motor.DaisyChainLayer, connection);
+            output.WaitForReady();
+        }
+    }
+
+    /// <summary>
+    /// This class exists only because the Output.Connection property is internal (gah!). Luckily,
+    /// the underlying field is protected. :)
+    /// </summary>
+    public class MissMotorOutput: Output
+    {
+        public MissMotorOutput(
+            OutputBitfield bf, DaisyChainLayer daisyChainLayer,
+            Connection<Command, Reply> connection)
+            : base(bf, daisyChainLayer)
+        {
+            this.connection = connection;
         }
     }
 
@@ -45,6 +78,10 @@ namespace Miss
         }
 
         public void Off()
+        {
+        }
+
+        public void Wait()
         {
         }
     }
