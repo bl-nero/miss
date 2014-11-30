@@ -10,6 +10,8 @@ namespace Miss
     {
         void On(sbyte speed);
 
+        void On(sbyte speed, UInt32 degrees);
+
         void Off();
 
         void Wait();
@@ -35,6 +37,13 @@ namespace Miss
         public void On(sbyte speed)
         {
             motor.On(speed);
+        }
+
+        public void On(sbyte speed, UInt32 degrees)
+        {
+            // TODO(bl-nero): The speed profile used by MonoBrick by default is stupid. Let's try to
+            // use a custom one.
+            motor.On(speed, degrees, true /* brake */);
         }
 
         public void Off()
@@ -77,6 +86,10 @@ namespace Miss
         {
         }
 
+        public void On(sbyte speed, UInt32 degrees)
+        {
+        }
+
         public void Off()
         {
         }
@@ -112,6 +125,18 @@ namespace Miss
                 string portSpec = parameters.portSpec;
                 Console.WriteLine(String.Format("Switching off motor {0}", portSpec));
                 motors[portSpec[0]].Off();
+                return HttpStatusCode.OK;
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/moveBy"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                sbyte speed = Request.Query.speed;
+                UInt32 degrees = Request.Query.degrees;
+                Console.WriteLine(String.Format(
+                        "Moving motor {0} by {1} degrees at speed {2}", portSpec, degrees, speed));
+                motors[portSpec[0]].On(speed, degrees);
+                motors[portSpec[0]].Wait();
                 return HttpStatusCode.OK;
             };
         }
