@@ -63,22 +63,27 @@ namespace Miss.Tests
         [Test]
         public void MoveBy()
         {
-            motorMocks['a'].Setup(motor => motor.On(50, 180));
-            motorMocks['a'].Setup(motor => motor.Wait());
-            motorMocks['b'].Setup(motor => motor.On(100, 90));
-            motorMocks['b'].Setup(motor => motor.Wait());
+            motorMocks['a'].Setup(motor => motor.On(50, 180)).Verifiable();
+            motorMocks['b'].Setup(motor => motor.On(100, 90)).Verifiable();
             BrowserResponse responseA = browser.Get("/v1/motor/a/moveBy", with =>
                 {
                     with.Query("speed", "50");
                     with.Query("degrees", "180");
                 });
-            BrowserResponse responseB = browser.Get("/v1/motor/a/moveBy", with =>
+            BrowserResponse responseB = browser.Get("/v1/motor/b/moveBy", with =>
                 {
                     with.Query("speed", "100");
                     with.Query("degrees", "90");
                 });
             Assert.That(responseA.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(responseB.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public void Wait()
+        {
+            motorMocks['a'].Setup(motor => motor.Wait()).Verifiable();
+            Assert.That(browser.Get("/v1/motor/a/wait").StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
         [Test]

@@ -58,7 +58,7 @@ namespace Miss
             // our own one just to call this one method.
             // TODO(bl-nero): This hasn't been properly tested yet!
             Output output = new MissMotorOutput(outputBitfield, motor.DaisyChainLayer, connection);
-            output.WaitForReady();
+            output.WaitForReady(true);
         }
     }
 
@@ -136,6 +136,14 @@ namespace Miss
                 Console.WriteLine(String.Format(
                         "Moving motor {0} by {1} degrees at speed {2}", portSpec, degrees, speed));
                 motors[portSpec[0]].On(speed, degrees);
+                motors[portSpec[0]].Wait();
+                return HttpStatusCode.OK;
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/wait"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                Console.WriteLine(String.Format("Waiting for motor {0}", portSpec));
                 motors[portSpec[0]].Wait();
                 return HttpStatusCode.OK;
             };
