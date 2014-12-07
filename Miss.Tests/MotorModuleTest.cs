@@ -61,7 +61,7 @@ namespace Miss.Tests
         }
 
         [Test]
-        public void MoveBy()
+        public void TurnBy()
         {
             motorMocks['a'].Setup(motor => motor.On(50, 180)).Verifiable();
             motorMocks['b'].Setup(motor => motor.On(100, 90)).Verifiable();
@@ -74,6 +74,25 @@ namespace Miss.Tests
                 {
                     with.Query("speed", "100");
                     with.Query("degrees", "90");
+                });
+            Assert.That(responseA.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(responseB.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public void TurnTo()
+        {
+            motorMocks['a'].Setup(motor => motor.TurnTo(10, 180)).Verifiable();
+            motorMocks['b'].Setup(motor => motor.TurnTo(20, -90)).Verifiable();
+            BrowserResponse responseA = browser.Get("/v1/motor/a/turnTo", with =>
+                {
+                    with.Query("speed", "10");
+                    with.Query("degrees", "180");
+                });
+            BrowserResponse responseB = browser.Get("/v1/motor/b/turnTo", with =>
+                {
+                    with.Query("speed", "20");
+                    with.Query("degrees", "-90");
                 });
             Assert.That(responseA.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(responseB.StatusCode, Is.EqualTo(HttpStatusCode.OK));

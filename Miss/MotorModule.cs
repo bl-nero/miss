@@ -19,6 +19,8 @@ namespace Miss
         Int32 GetCounter();
 
         void Reset();
+
+        void TurnTo(byte speed, int position);
     }
 
     /// <summary>
@@ -74,6 +76,11 @@ namespace Miss
         {
             motor.ResetTacho();
         }
+
+        public void TurnTo(byte speed, int position)
+        {
+            motor.MoveTo(speed, position, true /* brake */);
+        }
     }
 
     /// <summary>
@@ -121,6 +128,10 @@ namespace Miss
         public void Reset()
         {
         }
+
+        public void TurnTo(byte speed, int position)
+        {
+        }
     }
 
     /// <summary>
@@ -160,6 +171,18 @@ namespace Miss
                 Console.WriteLine(String.Format(
                         "Turning motor {0} by {1} degrees at speed {2}", portSpec, degrees, speed));
                 motors[portSpec[0]].On(speed, degrees);
+                return HttpStatusCode.OK;
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/turnTo"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                byte speed = Request.Query.speed;
+                int degrees = Request.Query.degrees;
+                Console.WriteLine(String.Format(
+                        "Turning motor {0} to position of {1} degrees at speed {2}",
+                        portSpec, degrees, speed));
+                motors[portSpec[0]].TurnTo(speed, degrees);
                 return HttpStatusCode.OK;
             };
 
