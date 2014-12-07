@@ -15,6 +15,10 @@ namespace Miss
         void Off();
 
         void Wait();
+
+        Int32 GetCounter();
+
+        void Reset();
     }
 
     /// <summary>
@@ -60,6 +64,16 @@ namespace Miss
             Output output = new MissMotorOutput(outputBitfield, motor.DaisyChainLayer, connection);
             output.WaitForReady(true);
         }
+
+        public Int32 GetCounter()
+        {
+            return motor.GetTachoCount();
+        }
+
+        public void Reset()
+        {
+            motor.ResetTacho();
+        }
     }
 
     /// <summary>
@@ -97,6 +111,16 @@ namespace Miss
         public void Wait()
         {
         }
+
+        public Int32 GetCounter()
+        {
+            Console.Write("Please enter the counter value: ");
+            return Int32.Parse(Console.ReadLine());
+        }
+
+        public void Reset()
+        {
+        }
     }
 
     /// <summary>
@@ -128,15 +152,14 @@ namespace Miss
                 return HttpStatusCode.OK;
             };
 
-            Get[@"/(?<portSpec>^[abcd]$)/moveBy"] = parameters =>
+            Get[@"/(?<portSpec>^[abcd]$)/turnBy"] = parameters =>
             {
                 string portSpec = parameters.portSpec;
                 sbyte speed = Request.Query.speed;
                 UInt32 degrees = Request.Query.degrees;
                 Console.WriteLine(String.Format(
-                        "Moving motor {0} by {1} degrees at speed {2}", portSpec, degrees, speed));
+                        "Turning motor {0} by {1} degrees at speed {2}", portSpec, degrees, speed));
                 motors[portSpec[0]].On(speed, degrees);
-                motors[portSpec[0]].Wait();
                 return HttpStatusCode.OK;
             };
 
@@ -145,6 +168,21 @@ namespace Miss
                 string portSpec = parameters.portSpec;
                 Console.WriteLine(String.Format("Waiting for motor {0}", portSpec));
                 motors[portSpec[0]].Wait();
+                return HttpStatusCode.OK;
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/getCounter"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                Console.WriteLine(String.Format("Getting counter of motor {0}", portSpec));
+                return motors[portSpec[0]].GetCounter().ToString();
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/reset"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                Console.WriteLine(String.Format("Resetting counter of motor {0}", portSpec));
+                motors[portSpec[0]].Reset();
                 return HttpStatusCode.OK;
             };
         }

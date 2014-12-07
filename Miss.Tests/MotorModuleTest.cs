@@ -19,7 +19,7 @@ namespace Miss.Tests
         [SetUp]
         public void SetUp()
         {
-            mocks = new MockRepository(MockBehavior.Loose);
+            mocks = new MockRepository(MockBehavior.Strict);
             motorMocks = new[]{ 'a', 'b', 'c', 'd' }.ToDictionary(
                 name => name, name => mocks.Create<IMotor>());
             var motors = motorMocks.ToDictionary(item => item.Key, item => item.Value.Object);
@@ -65,12 +65,12 @@ namespace Miss.Tests
         {
             motorMocks['a'].Setup(motor => motor.On(50, 180)).Verifiable();
             motorMocks['b'].Setup(motor => motor.On(100, 90)).Verifiable();
-            BrowserResponse responseA = browser.Get("/v1/motor/a/moveBy", with =>
+            BrowserResponse responseA = browser.Get("/v1/motor/a/turnBy", with =>
                 {
                     with.Query("speed", "50");
                     with.Query("degrees", "180");
                 });
-            BrowserResponse responseB = browser.Get("/v1/motor/b/moveBy", with =>
+            BrowserResponse responseB = browser.Get("/v1/motor/b/turnBy", with =>
                 {
                     with.Query("speed", "100");
                     with.Query("degrees", "90");
@@ -84,6 +84,26 @@ namespace Miss.Tests
         {
             motorMocks['a'].Setup(motor => motor.Wait()).Verifiable();
             Assert.That(browser.Get("/v1/motor/a/wait").StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public void GetCounter()
+        {
+            motorMocks['a'].Setup(motor => motor.GetCounter()).Returns(10);
+            motorMocks['b'].Setup(motor => motor.GetCounter()).Returns(20);
+            BrowserResponse responseA = browser.Get("/v1/motor/a/getCounter");
+            BrowserResponse responseB = browser.Get("/v1/motor/b/getCounter");
+            Assert.That(responseA.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(responseB.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(responseA.Body.AsString(), Is.EqualTo("10"));
+            Assert.That(responseB.Body.AsString(), Is.EqualTo("20"));
+        }
+
+        [Test]
+        public void Reset()
+        {
+            motorMocks['a'].Setup(motor => motor.Reset()).Verifiable();
+            Assert.That(browser.Get("/v1/motor/a/reset").StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
         [Test]
