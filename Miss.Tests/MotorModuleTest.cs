@@ -80,22 +80,55 @@ namespace Miss.Tests
         }
 
         [Test]
-        public void TurnTo()
+        public void TurnToForward()
         {
-            motorMocks['a'].Setup(motor => motor.TurnTo(10, 180)).Verifiable();
-            motorMocks['b'].Setup(motor => motor.TurnTo(20, -90)).Verifiable();
-            BrowserResponse responseA = browser.Get("/v1/motor/a/turnTo", with =>
+            motorMocks['a'].Setup(motor => motor.GetCounter()).Returns(100);
+            motorMocks['a'].Setup(motor => motor.On(10, 80)).Verifiable();
+            BrowserResponse response = browser.Get("/v1/motor/a/turnTo", with =>
                 {
                     with.Query("speed", "10");
                     with.Query("degrees", "180");
                 });
-            BrowserResponse responseB = browser.Get("/v1/motor/b/turnTo", with =>
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public void TurnToForwardFromNegativeCounter()
+        {
+            motorMocks['b'].Setup(motor => motor.GetCounter()).Returns(-200);
+            motorMocks['b'].Setup(motor => motor.On(100, 290)).Verifiable();
+            BrowserResponse response = browser.Get("/v1/motor/b/turnTo", with =>
                 {
-                    with.Query("speed", "20");
-                    with.Query("degrees", "-90");
+                    with.Query("speed", "100");
+                    with.Query("degrees", "90");
                 });
-            Assert.That(responseA.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(responseB.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public void TurnToBackwards()
+        {
+            motorMocks['c'].Setup(motor => motor.GetCounter()).Returns(180);
+            motorMocks['c'].Setup(motor => motor.On(-10, 80)).Verifiable();
+            BrowserResponse response = browser.Get("/v1/motor/c/turnTo", with =>
+                {
+                    with.Query("speed", "10");
+                    with.Query("degrees", "100");
+                });
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public void TurnToBackwardsToNegativeCounter()
+        {
+            motorMocks['d'].Setup(motor => motor.GetCounter()).Returns(90);
+            motorMocks['d'].Setup(motor => motor.On(-100, 290)).Verifiable();
+            BrowserResponse response = browser.Get("/v1/motor/d/turnTo", with =>
+                {
+                    with.Query("speed", "100");
+                    with.Query("degrees", "-200");
+                });
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
         [Test]

@@ -16,11 +16,9 @@ namespace Miss
 
         void Wait();
 
-        Int32 GetCounter();
+        int GetCounter();
 
         void Reset();
-
-        void TurnTo(byte speed, int position);
     }
 
     /// <summary>
@@ -42,19 +40,20 @@ namespace Miss
 
         public void On(sbyte speed)
         {
-            motor.On(speed);
+            motor.On(speed, true /* reply */);
         }
 
         public void On(sbyte speed, UInt32 degrees)
         {
-            // TODO(bl-nero): The speed profile used by MonoBrick by default is stupid. Let's try to
-            // use a custom one.
-            motor.On(speed, degrees, true /* brake */);
+            // The speed profile used by MonoBrick's On(speed, degrees) method by default is
+            // unnecessarily complex, because it attempts to perform a slow ramp up/down. Let's try
+            // something simpler instead.
+            motor.SpeedProfileStep(speed, 0, degrees, 0, true /* brake */, true /* reply */);
         }
 
         public void Off()
         {
-            motor.Off();
+            motor.Off(true /* reply */);
         }
 
         public void Wait()
@@ -62,12 +61,11 @@ namespace Miss
             // Note: Unfortunately, the motor's Output property is not public, and
             // Output.WaitForReady isn't exported from the Motor class itself, so we need to make
             // our own one just to call this one method.
-            // TODO(bl-nero): This hasn't been properly tested yet!
             Output output = new MissMotorOutput(outputBitfield, motor.DaisyChainLayer, connection);
-            output.WaitForReady(true);
+            output.WaitForReady(true /* reply */);
         }
 
-        public Int32 GetCounter()
+        public int GetCounter()
         {
             return motor.GetTachoCount();
         }
@@ -75,11 +73,6 @@ namespace Miss
         public void Reset()
         {
             motor.ResetTacho();
-        }
-
-        public void TurnTo(byte speed, int position)
-        {
-            motor.MoveTo(speed, position, true /* brake */);
         }
     }
 
@@ -119,17 +112,13 @@ namespace Miss
         {
         }
 
-        public Int32 GetCounter()
+        public int GetCounter()
         {
             Console.Write("Please enter the counter value: ");
-            return Int32.Parse(Console.ReadLine());
+            return int.Parse(Console.ReadLine());
         }
 
         public void Reset()
-        {
-        }
-
-        public void TurnTo(byte speed, int position)
         {
         }
     }
@@ -177,12 +166,28 @@ namespace Miss
             Get[@"/(?<portSpec>^[abcd]$)/turnTo"] = parameters =>
             {
                 string portSpec = parameters.portSpec;
-                byte speed = Request.Query.speed;
+                sbyte speed = Request.Query.speed;
                 int degrees = Request.Query.degrees;
                 Console.WriteLine(String.Format(
                         "Turning motor {0} to position of {1} degrees at speed {2}",
                         portSpec, degrees, speed));
-                motors[portSpec[0]].TurnTo(speed, degrees);
+
+                // Note: MonoBrick's MoveTo() method is broken (surprise!). It takes a "brake"
+                // parameter, but it doesn't pay any attentinon to it whatsoever. So, let's roll out
+                // our own implementation.
+                var motor = motors[portSpec[0]];
+                int counter = motor.GetCounter();
+                int relativeAngle;
+                if (degrees >= counter)
+                {
+                    relativeAngle = degrees - counter;
+                }
+                else
+                {
+                    relativeAngle = counter - degrees;
+                    speed = (sbyte)(-speed);
+                }
+                motor.On(speed, (UInt32)relativeAngle);
                 return HttpStatusCode.OK;
             };
 
@@ -198,7 +203,9 @@ namespace Miss
             {
                 string portSpec = parameters.portSpec;
                 Console.WriteLine(String.Format("Getting counter of motor {0}", portSpec));
-                return motors[portSpec[0]].GetCounter().ToString();
+                int counter = motors[portSpec[0]].GetCounter();
+                Console.WriteLine(String.Format("Returned value: {0}", counter));
+                return counter.ToString();
             };
 
             Get[@"/(?<portSpec>^[abcd]$)/reset"] = parameters =>
