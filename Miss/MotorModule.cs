@@ -10,7 +10,7 @@ namespace Miss
     {
         void On(sbyte speed);
 
-        void On(sbyte speed, UInt32 degrees);
+        void On(sbyte speed, UInt32 degrees, bool brake);
 
         void Off();
 
@@ -19,6 +19,8 @@ namespace Miss
         int GetCounter();
 
         void Reset();
+
+        void Brake();
     }
 
     /// <summary>
@@ -43,12 +45,12 @@ namespace Miss
             motor.On(speed, true /* reply */);
         }
 
-        public void On(sbyte speed, UInt32 degrees)
+        public void On(sbyte speed, UInt32 degrees, bool brake)
         {
             // The speed profile used by MonoBrick's On(speed, degrees) method by default is
             // unnecessarily complex, because it attempts to perform a slow ramp up/down. Let's try
             // something simpler instead.
-            motor.SpeedProfileStep(speed, 0, degrees, 0, true /* brake */, true /* reply */);
+            motor.SpeedProfileStep(speed, 0, degrees, 0, brake, true /* reply */);
         }
 
         public void Off()
@@ -73,6 +75,11 @@ namespace Miss
         public void Reset()
         {
             motor.ResetTacho();
+        }
+
+        public void Brake()
+        {
+            motor.Brake(true /* reply */);
         }
     }
 
@@ -100,7 +107,7 @@ namespace Miss
         {
         }
 
-        public void On(sbyte speed, UInt32 degrees)
+        public void On(sbyte speed, UInt32 degrees, bool brake)
         {
         }
 
@@ -119,6 +126,10 @@ namespace Miss
         }
 
         public void Reset()
+        {
+        }
+
+        public void Brake()
         {
         }
     }
@@ -157,9 +168,11 @@ namespace Miss
                 string portSpec = parameters.portSpec;
                 sbyte speed = Request.Query.speed;
                 UInt32 degrees = Request.Query.degrees;
+                bool brake = Request.Query.brake;
                 Console.WriteLine(String.Format(
-                        "Turning motor {0} by {1} degrees at speed {2}", portSpec, degrees, speed));
-                motors[portSpec[0]].On(speed, degrees);
+                        "Turning motor {0} by {1} degrees at speed {2}{3}",
+                        portSpec, degrees, speed, brake ? " with braking" : ""));
+                motors[portSpec[0]].On(speed, degrees, brake);
                 return HttpStatusCode.OK;
             };
 
@@ -168,9 +181,10 @@ namespace Miss
                 string portSpec = parameters.portSpec;
                 sbyte speed = Request.Query.speed;
                 int degrees = Request.Query.degrees;
+                bool brake = Request.Query.brake;
                 Console.WriteLine(String.Format(
-                        "Turning motor {0} to position of {1} degrees at speed {2}",
-                        portSpec, degrees, speed));
+                        "About to turn motor {0} to position of {1} degrees at speed {2}{3}...",
+                        portSpec, degrees, speed, brake ? " with braking" : ""));
 
                 // Note: MonoBrick's MoveTo() method is broken (surprise!). It takes a "brake"
                 // parameter, but it doesn't pay any attentinon to it whatsoever. So, let's roll out
@@ -187,7 +201,17 @@ namespace Miss
                     relativeAngle = counter - degrees;
                     speed = (sbyte)(-speed);
                 }
-                motor.On(speed, (UInt32)relativeAngle);
+                Console.WriteLine(String.Format(
+                        "...Turning motor by {0} degrees at speed {1}", relativeAngle, speed));
+                motor.On(speed, (UInt32)relativeAngle, brake);
+                return HttpStatusCode.OK;
+            };
+
+            Get[@"/(?<portSpec>^[abcd]$)/brake"] = parameters =>
+            {
+                string portSpec = parameters.portSpec;
+                Console.WriteLine(String.Format("Braking motor {0}", portSpec));
+                motors[portSpec[0]].Brake();
                 return HttpStatusCode.OK;
             };
 
